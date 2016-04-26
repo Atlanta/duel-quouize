@@ -1,18 +1,29 @@
-$(document).ready(function() {
+var theme = 0;
+var idGame;
+var idQuestion = 0;
+var reponses;
+var nbBonnesReponses = 0;
+var questions = null;
+
+$("document").ready(function() {
 	$("#reponses").hide();
 });
 
-function getAllThemes() {
+function startGame(theme) {
   $.ajax( {
     method: "POST",
-    url: "http://localhost:80/duel.php",
+    url: "http://localhost:80/duel-quouize/request.php",
+		async: false,
     data: {
-      request: 'getAllThemes'
+      request: 'getDatas',
+			theme: theme
     }
   })
 
   .done(function(response) {
-      receivedThemes = response;
+			var datas = $.parseJSON(response);
+      idGame = datas.id;
+			questions = datas.questions;
   })
 
   .fail(function(jqXHR, textStatus) {
@@ -20,46 +31,50 @@ function getAllThemes() {
   });
 }
 
-function selectTheme() {
-	var i = 0;
-	$("#question").text("Pick a theme !");
+function loadQuestion(idQuestion) {
+	$("#question").text(questions[idQuestion].text);
 
-	$.each("#reponses:li", function() {
-		$(this).text(receivedThemes[i]);
-		i++;
-	});
+	$("#r1").text(questions[idQuestion].reponse1);
+	$("#r2").text(questions[idQuestion].reponse2);
+	$("#r3").text(questions[idQuestion].reponse3);
+	$("#r4").text(questions[idQuestion].reponse4);
 }
 
-$("#themes").click(function() {
-	switch($(this).)
+function endGame() {
+	$("#question").text("Résultats");
+	$("#nbPoints").text(nbBonnesReponses + "/5");
+	$("#bar").width((nbBonnesReponses*20)+"%")
+	$("#results").show(1000);
+}
+
+$("#themes").children().click(function() {
+	theme = $(this).attr("id");
+
+	startGame(theme);
+
+	loadQuestion(idQuestion);
 
 	$("#themes").hide(1000);
 	$("#reponses").show(1000);
 });
 
-function sendChoosedTheme() {
-  $.ajax( {
-    method: "POST",
-    url: "http://localhost:80/duel.php",
-    data: {
-      request: 'getRandomThemes'
-    }
-  })
+$("#reponses").children().click(function() {
+	var choosedAwnser = parseInt($(this).attr("id").substring(1,2));
 
-  .done(function(response) {
-      receivedThemes = response;
-  })
+	console.log(choosedAwnser);
 
-  .fail(function(jqXHR, textStatus) {
-    alert("Erreur : " + textStatus);
-  });
-}
+	if(choosedAwnser == parseInt(questions[idQuestion].reponse)) {
+		nbBonnesReponses++;
+	}
 
-$( document ).ajaxStart(function() {
-  $( ".log" ).text( "Triggered ajaxStart handler." );
+	idQuestion++;
+
+	if(idQuestion < 5) {
+		loadQuestion(idQuestion);
+	}
+	else {
+		$("#reponses").hide(1000);
+		endGame();
+		console.log("Bonnes réponses = " + nbBonnesReponses);
+	}
 });
-
-var receivedThemes;
-var choosedTheme;
-var questions;
-var nbCorrectAwnsers;

@@ -1,0 +1,33 @@
+body {
+  background: linear-gradient(#00BF66, #50BFA9);
+  height:800px;
+}
+
+h1 {
+  text-transform: uppercase;
+  text-align: center;
+  color:white;
+  font-family: "Verdana";
+}
+
+form {
+  width: 80%;
+  box-shadow: 0px 0px 10px black;
+
+}
+
+button {
+  transition:1s;
+  color:white;
+  font-size: 1.5em;
+  background-color: #00BF66;
+  border-radius: 30px;
+  border:5px solid white;
+  padding:20px;
+}
+
+button:hover {
+  transition: 1s;
+  color:#00BF66;
+  background-color: white;
+}
